@@ -4,6 +4,8 @@
 
 ![Metrics](./tictactoe-qlearning-metrics.png "Example output")
 
+Note: These metrics were aggregated against the "minimax" opponent.
+
 ## Usage
 
 ### Requirements
