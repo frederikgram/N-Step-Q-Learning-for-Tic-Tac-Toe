@@ -17,7 +17,7 @@ Note: These metrics were aggregated against the "minimax" opponent.
 - alpha: Learning rate
 - nsteps: Number of steps
 
-note: both epsilon and nsteps can be formatted as lists eg. `--epsilons 0.1, 0.2, 0.3 --nsteps 1 2`
+note: both epsilon and nsteps can be formatted as lists eg. `--epsilons 0.1 0.2, 0.3 --nsteps 1 2 3`
 
 ### Arguments
 
