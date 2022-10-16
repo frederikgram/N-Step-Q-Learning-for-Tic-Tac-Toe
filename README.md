@@ -1,7 +1,4 @@
 # Tic-Tac-Toe N-Step Q-Learning
-
-This is a an implementation of the N-Step Q-Learning algorithm used to train agents to play Tic-Tac-Toe.
-
 ## Example
     $ python3 qlearning.py --episodes 80 --epsilons 0.1 0.2 0.3 0.4 0.5 --nsteps 1 2 3 --debug --plot
 
