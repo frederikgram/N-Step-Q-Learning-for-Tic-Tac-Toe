@@ -1,10 +1,8 @@
 # Tic-Tac-Toe N-Step Q-Learning
 
-    $ python3 qlearning.py --episodes 80 --epsilons 0.1 0.2 0.3 0.4 0.5 --nsteps 1 2 3 --debug --plot
+    $ python3 qlearning.py --episodes 80 --epsilons 0.1 0.2 0.3 0.4 0.5 --nsteps 1 2 3 --opponent minimax --debug --plot
 
 ![Metrics](./tictactoe-qlearning-metrics.png "Example output")
-
-Note: These metrics were aggregated against the "minimax" opponent.
 
 ## Usage
 
