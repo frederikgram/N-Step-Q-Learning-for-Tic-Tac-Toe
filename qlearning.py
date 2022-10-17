@@ -213,7 +213,7 @@ if __name__ == "__main__":
         gridspec = axs[0, 0].get_subplotspec().get_gridspec()
 
         # Clear gridspec for outer axes
-        for i in range(0, len(args.nsteps)):
+        for i in range(0, len(args.epsilons)):
             for ax in axs[0:, i]:
                 ax.remove()
 
@@ -285,6 +285,8 @@ if __name__ == "__main__":
                     # Plot the loss rate
                     axs[0].plot([episode["episode"] for episode in average_metrics["episodes"]], [episode["loss_rate"] for episode in average_metrics["episodes"]], label="Loss rate", color="red")
                     axs[0].legend()
+
+
                     axs[0].set_yticklabels(["{:.0%}".format(x) for x in axs[0].get_yticks()])
                     
                     # Plot the cumulative reward
@@ -295,6 +297,8 @@ if __name__ == "__main__":
                     axs[2].plot([episode["episode"] for episode in average_metrics["episodes"]], [max(0, episode["cumulative_reward"] * (-1)) / (enum + 1)  for enum, episode in enumerate(metrics["episodes"])], label="Learning Curve", color="green")
                     axs[2].legend()
                     axs[2].set_yticks([0, 1])
+                    axs[2].set_xlabel("Episode(s)")
+
 
                     # Calculate Standard Deviation and mean of cumulative reward for each episode
                     cumulative_reward_std = [np.std([metrics["episodes"][episode]["cumulative_reward"] for metrics in training_history]) for episode in range(args.episodes + 1)]
