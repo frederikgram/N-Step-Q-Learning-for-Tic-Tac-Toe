@@ -1,5 +1,7 @@
 # Learning Tic-Tac-Toe Using N-Step Q-Learning
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/frederikgram/nstep_qlearning_tictactoe/blob/master/LICENSE)
+[![CodeQL](https://github.com/frederikgram/nstep_qlearning_tictactoe/workflows/CodeQL/badge.svg)](https://github.com/frederikgram/nstep_qlearning_tictactoe/actions?query=workflow%3ADependency+Review)
+[![Dependency Review](https://github.com/frederikgram/nstep_qlearning_tictactoe/workflows/Dependency%20Review/badge.svg)]()
 
 
 Reinforcement learning (RL) is an area of machine learning concerned with how intelligent agents ought to take actions in an environment in order to maximize the notion of cumulative reward. Reinforcement learning is one of three basic machine learning paradigms, alongside supervised learning and unsupervised learning. In this project, we implement a reinforcement learning algorithm called Q-learning, to train an agent to play Tic-Tac-Toe.
