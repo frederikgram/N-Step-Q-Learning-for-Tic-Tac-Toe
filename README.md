@@ -1,4 +1,18 @@
-# Tic-Tac-Toe N-Step Q-Learning
+# Learning Tic-Tac-Toe Using N-Step Q-Learning
+
+Reinforcement learning (RL) is an area of machine learning concerned with how intelligent agents ought to take actions in an environment in order to maximize the notion of cumulative reward. Reinforcement learning is one of three basic machine learning paradigms, alongside supervised learning and unsupervised learning. 
+
+This project implements a reinforcement learning algorithm called Q-learning to train an agent to play Tic-Tac-Toe.
+
+The agent will be trained using a technique called Q-learning, which is a model-free reinforcement learning algorithm. Q-learning is an off-policy TD control algorithm. It can be used when the MDP is known, and produces optimal policies given infinite exploration time and a stationary environment.
+
+This implementation utilizes the N-step Q-learning algorithm, which is an extension of the standard Q-learning algorithm. N-Step in the context of Tic-Tac-Toe means that the agent will learn from the outcome of the game after N moves, and not after the completion of a game. This is done to reduce the amount of time it takes for the agent to learn the optimal policy.
+
+
+This application has to purpose, to assist in the analysis of agent performance, over a set of hyperparameters. The following graph showcases each configuration of hyperparameters as a block with three graphs, and will automatically adjust to any number of configurations given to the application.
+
+
+## Example
 
     $ python3 qlearning.py --episodes 80 --epsilons 0.1 0.2 0.3 0.4 0.5 --nsteps 1 2 3 --opponent minimax --debug --plot
 
@@ -51,6 +65,7 @@ optional arguments:
     $ python3 qlearning.py --episodes 80 --epsilons 0.1 0.2 0.3 0.4 0.5 --nsteps 1 2 3 --debug --plot
 
 ### Conditional Outputs
+
 If `--output` is not specified, the output will be saved in the `.` directory.
 
 
