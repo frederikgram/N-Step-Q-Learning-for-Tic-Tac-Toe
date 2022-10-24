@@ -1,4 +1,4 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/frederikgram/nstep_qlearning_tictactoe/blob/master/LICENSE)
 
 # Learning Tic-Tac-Toe Using N-Step Q-Learning
 
