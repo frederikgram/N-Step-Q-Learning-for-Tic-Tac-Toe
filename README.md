@@ -25,7 +25,7 @@ The purpose of this application is to assist in the analysis of agent performanc
 - alpha: Learning rate
 - nsteps: Number of steps
 
-note: both epsilon and nsteps can be formatted as lists eg. `--epsilons 0.1 0.2 0.3 --nsteps 1 2 3`
+:speech_balloon: both epsilon and nsteps can be formatted as lists eg. `--epsilons 0.1 0.2 0.3 --nsteps 1 2 3`
 
 ### Arguments
 
