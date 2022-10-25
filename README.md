@@ -54,7 +54,7 @@ optional arguments:
   --plot                Plot the metrics after training.
 ```
 
-### Run
+### Example Runtime
     $ python3 qlearning.py --episodes 80 --epsilons 0.1 0.2 0.3 0.4 0.5 --nsteps 1 2 3 --debug --plot
 
 ### Conditional Outputs
