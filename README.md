@@ -23,12 +23,6 @@ The purpose of this application is to assist in the analysis of agent performanc
 ### Requirements
     $ pip install -r requirements.txt
 
-### Select Hyperparameters
-- gamma: Discount factor
-- epsilon: Exploration factor
-- alpha: Learning rate
-- nsteps: Number of steps
-
 :speech_balloon: both epsilon and nsteps can be formatted as lists like so `--epsilons 0.1 0.2 0.3 --nsteps 1 2 3`
 
 ### Arguments
