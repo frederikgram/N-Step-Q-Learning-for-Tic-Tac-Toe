@@ -86,7 +86,6 @@ def train(episodes: int, epsilon: float, gamma: float, alpha: float, size: int, 
     }
 
 
-
     # Each episode is a single tic-tac-toe game
     for episode in range(episodes):
 
