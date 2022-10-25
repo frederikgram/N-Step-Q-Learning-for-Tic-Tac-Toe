@@ -16,7 +16,7 @@ import os
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
-# Default values for the Q-Learning algorithm, the agent always goes first
+# Default values for the game, the agent always goes first.
 ASSOCIATE = 1
 OPPONENT = 2
 
