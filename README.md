@@ -25,7 +25,7 @@ The purpose of this application is to assist in the analysis of agent performanc
 
 
 ### Arguments
-:speech_balloon: both epsilon and nsteps can be formatted as lists like so `--epsilons 0.1 0.2 0.3 --nsteps 1 2 3`
+:speech_balloon: both `--epsilon` and `--nsteps` can be formatted as lists like so `--epsilons 0.1 0.2 0.3 --nsteps 1 2 3`
 ```
 usage: qlearning.py [-h] --episodes EPISODES --epsilons EPSILONS [EPSILONS ...] --nsteps NSTEPS [NSTEPS ...]
                     [--gamma GAMMA] [--alpha ALPHA] [--repetitions REPETITIONS] [--opponent OPPONENT] [--size SIZE]
