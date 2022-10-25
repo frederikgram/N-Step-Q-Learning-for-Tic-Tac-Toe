@@ -10,7 +10,7 @@ The agent will be trained using a technique called Q-learning, which is a model-
 
 This implementation utilizes the N-step Q-learning algorithm, which is an extension of the standard Q-learning algorithm. N-Step in the context of Tic-Tac-Toe means that the agent will learn from the outcome of the game after N moves, and not after the completion of a game. This is done to reduce the amount of time it takes for the agent to learn the optimal policy.
 
-The purpose of this application is to assist in the analysis of agent performance, over a set of hyperparameters. The following graph showcases each configuration of hyperparameters as a block with three graphs, and will automatically adjust to any number of configurations given to the application.
+The purpose of this application is to assist in the analysis of agent performance over a set of hyperparameters. The following graph showcases each configuration of hyperparameters as a block with three graphs, and will automatically adjust to any number of configurations given to the application.
 
 ## Example
 
