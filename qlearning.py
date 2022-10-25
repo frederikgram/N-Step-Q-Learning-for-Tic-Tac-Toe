@@ -257,6 +257,9 @@ if __name__ == "__main__":
                     if args.plot:
                         training_history.append(metrics)
 
+                    if args.debug:
+                        print(f"Finished training with epsilon={epsilon}, n={step}, repetition={k}.")
+
                 if args.plot:
 
                     # Create average metrics from the repetition history
