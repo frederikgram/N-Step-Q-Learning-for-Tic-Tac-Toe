@@ -124,6 +124,8 @@ def train(episodes: int, epsilon: float, gamma: float, alpha: float, size: int, 
                 reward = 1
             elif result == OPPONENT:
                 reward = -1
+            elif result == 3:
+                reward = 0.5
             else:
                 reward = 0
 
@@ -142,7 +144,7 @@ def train(episodes: int, epsilon: float, gamma: float, alpha: float, size: int, 
 
                 # Calculate the new Q-value using the Bellman equation with the discount factor
                 else:
-                    qtable[(action, tuple(state))] = current_q + alpha * (gamma * best_value - current_q)
+                    qtable[(action, tuple(state))] = current_q + alpha * ((gamma ** n) * best_value - current_q)
 
                 # Track the best value
                 best_value = max(best_value, qtable[(action, tuple(state))])
