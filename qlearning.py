@@ -120,11 +120,11 @@ def train(episodes: int, epsilon: float, gamma: float, alpha: float, size: int, 
                 if (result := get_winner(board, size)) != 0:
                     break
     
-            # Win
+            # Victory
             if result == ASSOCIATE:
                 reward = 1
                 
-            # Lose
+            # Loss
             elif result == OPPONENT:
                 reward = -1
                 
@@ -132,7 +132,7 @@ def train(episodes: int, epsilon: float, gamma: float, alpha: float, size: int, 
             elif result == 3:
                 reward = 0.5
                 
-            # Game is still in progressed
+            # Game is still in progress
             else:
                 reward = 0
 
