@@ -20,8 +20,16 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 ASSOCIATE = 1
 OPPONENT = 2
 
-def take_step(qtable: Dict[Tuple[int, Tuple[int, ...]], float], board: List[int], player: int, size: int,  epsilon: int, opponent: str) -> Tuple[List[int], int]:
-    """ Take a step in the game using either the Q-Learning algorithm or minimax based on the given player """
+
+def take_step(
+    qtable: Dict[Tuple[int, Tuple[int, ...]], float],
+    board: List[int],
+    player: int,
+    size: int,
+    epsilon: int,
+    opponent: str,
+) -> Tuple[List[int], int]:
+    """Take a step in the game using either the Q-Learning algorithm or minimax based on the given player"""
 
     # Get all possible actions
     actions = get_actions(board)
@@ -32,7 +40,7 @@ def take_step(qtable: Dict[Tuple[int, Tuple[int, ...]], float], board: List[int]
         # Exploit the Q-Table
         if np.random.uniform(0, 1) > epsilon:
             action = max(actions, key=lambda a: qtable[(a, tuple(board))])
-        
+
         # Explore outside of the Q-Table
         else:
             action = np.random.choice(actions)
@@ -42,7 +50,7 @@ def take_step(qtable: Dict[Tuple[int, Tuple[int, ...]], float], board: List[int]
 
     # Otherwise, the opponent is taking a step
     if opponent == "minimax":
-        action, _ = minimax(board, OPPONENT, OPPONENT, size) 
+        action, _ = minimax(board, OPPONENT, OPPONENT, size)
     else:
         action, _ = random(board, OPPONENT, size)
 
@@ -52,9 +60,21 @@ def take_step(qtable: Dict[Tuple[int, Tuple[int, ...]], float], board: List[int]
 
     return board, action
 
-def train(episodes: int, epsilon: float, gamma: float, alpha: float, size: int, qtable: Dict[Tuple[int, Tuple[int, ...]], float], n: int, debug: bool, lerp: bool, opponent: str)  -> Tuple[Dict[Tuple[int, Tuple[int, ...]], float], Dict[str, Any]]:
-    """ Train the Q-Learning algorithm.
-    
+
+def train(
+    episodes: int,
+    epsilon: float,
+    gamma: float,
+    alpha: float,
+    size: int,
+    qtable: Dict[Tuple[int, Tuple[int, ...]], float],
+    n: int,
+    debug: bool,
+    lerp: bool,
+    opponent: str,
+) -> Tuple[Dict[Tuple[int, Tuple[int, ...]], float], Dict[str, Any]]:
+    """Train the Q-Learning algorithm.
+
     Args:
         episodes: The number of episodes to train for.
         epsilon: The epsilon value for the epsilon-greedy algorithm.
@@ -85,19 +105,26 @@ def train(episodes: int, epsilon: float, gamma: float, alpha: float, size: int, 
         "associate": ASSOCIATE,
     }
 
-
     # Each episode is a single tic-tac-toe game
     for episode in range(episodes):
 
-        lerped_epsilon = np.round( epsilon * (1 - (episode / (episodes ))), decimals = 3) if lerp else epsilon 
+        lerped_epsilon = (
+            np.round(epsilon * (1 - (episode / (episodes))), decimals=3)
+            if lerp
+            else epsilon
+        )
 
         board = [0] * (size * size)
 
-        metrics["episodes"].append({
-            "episode": episode,
-            "epsilon": lerped_epsilon,
-            "cumulative_reward": metrics["episodes"][-1]["cumulative_reward"] if len(metrics["episodes"]) > 0 else 0
-        })
+        metrics["episodes"].append(
+            {
+                "episode": episode,
+                "epsilon": lerped_epsilon,
+                "cumulative_reward": metrics["episodes"][-1]["cumulative_reward"]
+                if len(metrics["episodes"]) > 0
+                else 0,
+            }
+        )
 
         # Continue to take n-steps at the time, until the game is over
         while (result := get_winner(board, size)) == 0:
@@ -106,32 +133,36 @@ def train(episodes: int, epsilon: float, gamma: float, alpha: float, size: int, 
             last_board: Union[List[int], None] = None
 
             # Take n-steps
-            for _ in range(n):  
+            for _ in range(n):
 
                 # Agent's move
-                last_board, (board, action) = board, take_step(qtable, board, ASSOCIATE, size, lerped_epsilon, opponent)
+                last_board, (board, action) = board, take_step(
+                    qtable, board, ASSOCIATE, size, lerped_epsilon, opponent
+                )
                 history.append((action, tuple(last_board)))
 
                 # Opponent's move
-                last_board, (board, action) = board, take_step(qtable, board, OPPONENT, size, 1, opponent)
+                last_board, (board, action) = board, take_step(
+                    qtable, board, OPPONENT, size, 1, opponent
+                )
                 history.append((action, tuple(last_board)))
 
                 # Break if the game finished before n steps were taken
                 if (result := get_winner(board, size)) != 0:
                     break
-    
+
             # Victory
             if result == ASSOCIATE:
                 reward = 1
-                
+
             # Loss
             elif result == OPPONENT:
                 reward = -1
-                
+
             # Draw
             elif result == 3:
-                reward = 0.5
-                
+                reward = 0  # The decreasing rate of negative cumulative rewards represents the "increase" in cumulative reward if this was a positive value
+
             # Game is still in progress
             else:
                 reward = 0
@@ -141,7 +172,7 @@ def train(episodes: int, epsilon: float, gamma: float, alpha: float, size: int, 
 
             # Iterate through the move history in reverse order skipping the opponent's moves
             for enum, (action, state) in enumerate(history[::2][::-1]):
-                
+
                 # Get the current Q-value
                 current_q = qtable[(action, tuple(state))]
 
@@ -151,11 +182,12 @@ def train(episodes: int, epsilon: float, gamma: float, alpha: float, size: int, 
 
                 # Calculate the new Q-value using the Bellman equation with the discount factor
                 else:
-                    qtable[(action, tuple(state))] = current_q + alpha * ((gamma ** n) * best_value - current_q)
+                    qtable[(action, tuple(state))] = current_q + alpha * (
+                        (gamma ** (enum + 1)) * best_value - current_q
+                    )
 
                 # Track the best value
                 best_value = max(best_value, qtable[(action, tuple(state))])
-
 
         metrics["total_games"] += 1
 
@@ -164,39 +196,103 @@ def train(episodes: int, epsilon: float, gamma: float, alpha: float, size: int, 
         else:
             metrics["total_draws"] += 1
 
-        metrics["episodes"][-1].update({
-            "total_games": metrics["total_games"],
-            "total_draws":  metrics["total_draws"],
-            "total_losses": metrics["total_losses"],
-            "loss_rate": np.round(metrics["total_losses"] / metrics["total_games"], decimals = 3),
-            "draw_rate": np.round(metrics["total_draws"] / metrics["total_games"], decimals  = 3),
-        })
+        metrics["episodes"][-1].update(
+            {
+                "total_games": metrics["total_games"],
+                "total_draws": metrics["total_draws"],
+                "total_losses": metrics["total_losses"],
+                "loss_rate": np.round(
+                    metrics["total_losses"] / metrics["total_games"], decimals=3
+                ),
+                "draw_rate": np.round(
+                    metrics["total_draws"] / metrics["total_games"], decimals=3
+                ),
+            }
+        )
 
     return qtable, metrics
 
+
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="Train a Q-Learning agent to play Tic-Tac-Toe.")
-    
-    parser.add_argument("--episodes", type=int, required=True, help="Number of episodes to train for.")
+    parser = argparse.ArgumentParser(
+        description="Train a Q-Learning agent to play Tic-Tac-Toe."
+    )
 
-    parser.add_argument("--epsilons", type=float, required=True, nargs="+", help="Epsilon value(s) to train for.")
-    parser.add_argument("--nsteps", type=int, required=True, nargs="+", help="Number of steps to look ahead increasing from 1 to n.")
+    parser.add_argument(
+        "--episodes", type=int, required=True, help="Number of episodes to train for."
+    )
 
-    parser.add_argument("--gamma", type=float, default=0.1, help="Gamma value(s) to train for.")
-    parser.add_argument("--alpha", type=float, default=0.9, help="Alpha value(s) to train for.")
+    parser.add_argument(
+        "--epsilons",
+        type=float,
+        required=True,
+        nargs="+",
+        help="Epsilon value(s) to train for.",
+    )
+    parser.add_argument(
+        "--nsteps",
+        type=int,
+        required=True,
+        nargs="+",
+        help="Number of steps to look ahead increasing from 1 to n.",
+    )
 
-    parser.add_argument("--repetitions", type=int, default=10, help="Number of times to repeat each combination of hyperparameters.")
-    parser.add_argument("--opponent", type=str, default="minimax", help="The opponent to play against, either 'random' or 'minimax'.")
-    parser.add_argument("--size", type=int, default=3, help="The size of the board, default is 3x3.")
+    parser.add_argument(
+        "--gamma", type=float, default=0.1, help="Gamma value(s) to train for."
+    )
+    parser.add_argument(
+        "--alpha", type=float, default=0.9, help="Alpha value(s) to train for."
+    )
 
-    parser.add_argument("--debug", action="store_true", default=False, help="Print the board after each step.")
-    parser.add_argument("--nolerp", action="store_false", default=False, help="Don't Linearly interpolate epsilon over the number of episodes.")
+    parser.add_argument(
+        "--repetitions",
+        type=int,
+        default=10,
+        help="Number of times to repeat each combination of hyperparameters.",
+    )
+    parser.add_argument(
+        "--opponent",
+        type=str,
+        default="minimax",
+        help="The opponent to play against, either 'random' or 'minimax'.",
+    )
+    parser.add_argument(
+        "--size", type=int, default=3, help="The size of the board, default is 3x3."
+    )
+
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        default=False,
+        help="Print the board after each step.",
+    )
+    parser.add_argument(
+        "--nolerp",
+        action="store_false",
+        default=False,
+        help="Don't Linearly interpolate epsilon over the number of episodes.",
+    )
 
     parser.add_argument("--output", type=str, default=".", help="Path ")
-    parser.add_argument("--save-models", default=False, action="store_true", help="Save the models after training.")
-    parser.add_argument("--save-metrics", default=False, action="store_true", help="Save the metrics after training.")
-    parser.add_argument("--plot", default=False, action="store_true", help="Plot the metrics after training.")
+    parser.add_argument(
+        "--save-models",
+        default=False,
+        action="store_true",
+        help="Save the models after training.",
+    )
+    parser.add_argument(
+        "--save-metrics",
+        default=False,
+        action="store_true",
+        help="Save the metrics after training.",
+    )
+    parser.add_argument(
+        "--plot",
+        default=False,
+        action="store_true",
+        help="Plot the metrics after training.",
+    )
 
     args = parser.parse_args()
 
@@ -214,8 +310,8 @@ if __name__ == "__main__":
             len(args.nsteps),
             len(args.epsilons),
             constrained_layout=True,
-            figsize=(10, 4), 
-            num=f"Tic-Tac-Toe Q-Learning ({args.size}x{args.size}) | Episodes: {args.episodes} | Gamma: {args.gamma} | Alpha: {args.alpha} | N-Steps: {args.nsteps} | Epsilon(s): {args.epsilons} | Opponent: {args.opponent}"
+            figsize=(10, 4),
+            num=f"Tic-Tac-Toe Q-Learning ({args.size}x{args.size}) | Episodes: {args.episodes} | Gamma: {args.gamma} | Alpha: {args.alpha} | N-Steps: {args.nsteps} | Epsilon(s): {args.epsilons} | Opponent: {args.opponent}",
         )
 
         gridspec = axs[0, 0].get_subplotspec().get_gridspec()
@@ -227,105 +323,177 @@ if __name__ == "__main__":
 
     # Enumerate all combinations of hyperparameters
     for i, step in enumerate(args.nsteps):
-        
-            for j, epsilon in enumerate(args.epsilons):
 
-                if args.plot:
-                    training_history = list()
+        for j, epsilon in enumerate(args.epsilons):
 
-                for k in range(args.repetitions):
+            if args.plot:
+                training_history = list()
 
-                    qtable, metrics = train(
-                        qtable=defaultdict(float),
-                        episodes=args.episodes,
-                        epsilon=epsilon,
-                        alpha=args.alpha,
-                        gamma=args.gamma,
-                        n=step,
-                        size=args.size,
-                        debug=args.debug,
-                        lerp=args.nolerp == False,
-                        opponent=args.opponent
-                    )
+            for k in range(args.repetitions):
 
-                    metrics["episodes"].insert(0, {
+                qtable, metrics = train(
+                    qtable=defaultdict(float),
+                    episodes=args.episodes,
+                    epsilon=epsilon,
+                    alpha=args.alpha,
+                    gamma=args.gamma,
+                    n=step,
+                    size=args.size,
+                    debug=args.debug,
+                    lerp=args.nolerp == False,
+                    opponent=args.opponent,
+                )
+
+                metrics["episodes"].insert(
+                    0,
+                    {
                         "episode": -1,
                         "cumulative_reward": 0,
                         "draw_rate": 0,
-                        "loss_rate": 1 
-                    })
+                        "loss_rate": 1,
+                    },
+                )
 
-                    if args.save_models:
-                        with open(os.path.join(args.output, f"qtable_{i}_{j}_{k}.pkl"), "wb") as f:
-                            pickle.dump(qtable, f)
-                        
-                    if args.save_metrics:
-                        with open(os.path.join(args.output, f"metrics_{i}_{j}_{k}.pkl"), "wb") as f:
-                            pickle.dump(metrics, f)
-                    
-                    if args.plot:
-                        training_history.append(metrics)
+                if args.save_models:
+                    with open(
+                        os.path.join(args.output, f"qtable_{i}_{j}_{k}.pkl"), "wb"
+                    ) as f:
+                        pickle.dump(qtable, f)
 
-                    if args.debug:
-                        print(f"Finished training with epsilon={epsilon}, n={step}, repetition={k}.")
+                if args.save_metrics:
+                    with open(
+                        os.path.join(args.output, f"metrics_{i}_{j}_{k}.pkl"), "wb"
+                    ) as f:
+                        pickle.dump(metrics, f)
 
                 if args.plot:
+                    training_history.append(metrics)
 
-                    # Create average metrics from the repetition history
-                    average_metrics = {"episodes": []}
-                    for episode in range(args.episodes + 1):
-                        average_metrics["episodes"].append({
+                if args.debug:
+                    print(
+                        f"Finished training with epsilon={epsilon}, n={step}, repetition={k}."
+                    )
+
+            if args.plot:
+
+                # Create average metrics from the repetition history
+                average_metrics = {"episodes": []}
+                for episode in range(args.episodes + 1):
+                    average_metrics["episodes"].append(
+                        {
                             "cumulative_reward": np.mean(
-                                [metrics["episodes"][episode]["cumulative_reward"] for metrics in training_history]
+                                [
+                                    metrics["episodes"][episode]["cumulative_reward"]
+                                    for metrics in training_history
+                                ]
                             ),
                             "draw_rate": np.mean(
-                                [metrics["episodes"][episode]["draw_rate"] for metrics in training_history]
+                                [
+                                    metrics["episodes"][episode]["draw_rate"]
+                                    for metrics in training_history
+                                ]
                             ),
                             "loss_rate": np.mean(
-                                [metrics["episodes"][episode]["loss_rate"] for metrics in training_history]
+                                [
+                                    metrics["episodes"][episode]["loss_rate"]
+                                    for metrics in training_history
+                                ]
                             ),
                             "episode": episode,
-                    })
+                        }
+                    )
 
-                    # Create subfigure to contain plots for cumulative reward and loss-rate
-                    subfig = fig.add_subfigure(gridspec[i, j])
-                    subfig.set_facecolor('0.9')
-                    subfig.suptitle(f"n = {step}, ε = {epsilon}")
-                    axs = subfig.subplots(3, 1, sharex=True)
+                # Create subfigure to contain plots for cumulative reward and loss-rate
+                subfig = fig.add_subfigure(gridspec[i, j])
+                subfig.set_facecolor("0.9")
+                subfig.suptitle(f"n = {step}, ε = {epsilon}")
+                axs = subfig.subplots(3, 1, sharex=True)
 
-                    # Plot the loss rate
-                    axs[0].plot([episode["episode"] for episode in average_metrics["episodes"]], [episode["loss_rate"] for episode in average_metrics["episodes"]], label="Loss rate", color="red")
-                    axs[0].legend()
+                # Plot the loss rate
+                axs[0].plot(
+                    [episode["episode"] for episode in average_metrics["episodes"]],
+                    [episode["loss_rate"] for episode in average_metrics["episodes"]],
+                    label="Loss rate",
+                    color="red",
+                )
+                axs[0].legend()
 
+                axs[0].set_yticklabels(
+                    ["{:.0%}".format(x) for x in axs[0].get_yticks()]
+                )
 
-                    axs[0].set_yticklabels(["{:.0%}".format(x) for x in axs[0].get_yticks()])
-                    
-                    # Plot the cumulative reward
-                    axs[1].plot([episode["episode"] for episode in average_metrics["episodes"]], [episode["cumulative_reward"] for episode in average_metrics["episodes"]], label="Cumulative Reward", color="orange")
-                    axs[1].legend()
+                # Plot the cumulative reward
+                axs[1].plot(
+                    [episode["episode"] for episode in average_metrics["episodes"]],
+                    [
+                        episode["cumulative_reward"]
+                        for episode in average_metrics["episodes"]
+                    ],
+                    label="Cumulative Reward",
+                    color="orange",
+                )
+                axs[1].legend()
 
-                    # Plot the learning curve
-                    axs[2].plot([episode["episode"] for episode in average_metrics["episodes"]], [max(0, episode["cumulative_reward"] * (-1)) / (enum + 1)  for enum, episode in enumerate(metrics["episodes"])], label="Learning Curve", color="green")
-                    axs[2].legend()
-                    axs[2].set_yticks([0, 1])
-                    axs[2].set_xlabel("Episode(s)")
+                # Plot the learning curve
+                axs[2].plot(
+                    [episode["episode"] for episode in average_metrics["episodes"]],
+                    [
+                        max(0, episode["cumulative_reward"] * (-1)) / (enum + 1)
+                        for enum, episode in enumerate(metrics["episodes"])
+                    ],
+                    label="Learning Curve",
+                    color="green",
+                )
+                axs[2].legend()
+                axs[2].set_yticks([0, 1])
+                axs[2].set_xlabel("Episode(s)")
 
+                # Calculate Standard Deviation and mean of cumulative reward for each episode
+                cumulative_reward_std = [
+                    np.std(
+                        [
+                            metrics["episodes"][episode]["cumulative_reward"]
+                            for metrics in training_history
+                        ]
+                    )
+                    for episode in range(args.episodes + 1)
+                ]
+                cumulative_reward_mean = [
+                    np.mean(
+                        [
+                            metrics["episodes"][episode]["cumulative_reward"]
+                            for metrics in training_history
+                        ]
+                    )
+                    for episode in range(args.episodes + 1)
+                ]
 
-                    # Calculate Standard Deviation and mean of cumulative reward for each episode
-                    cumulative_reward_std = [np.std([metrics["episodes"][episode]["cumulative_reward"] for metrics in training_history]) for episode in range(args.episodes + 1)]
-                    cumulative_reward_mean = [np.mean([metrics["episodes"][episode]["cumulative_reward"] for metrics in training_history]) for episode in range(args.episodes + 1)]
-
-                    # Plot the standard deviation of the cumulative reward as a shaded area
-                    axs[1].fill_between([episode["episode"] for episode in average_metrics["episodes"]], [cumulative_reward_mean[episode] - cumulative_reward_std[episode] for episode in range(args.episodes + 1)], [cumulative_reward_mean[episode] + cumulative_reward_std[episode] for episode in range(args.episodes + 1)], alpha=0.2, color="orange")
-
+                # Plot the standard deviation of the cumulative reward as a shaded area
+                axs[1].fill_between(
+                    [episode["episode"] for episode in average_metrics["episodes"]],
+                    [
+                        cumulative_reward_mean[episode] - cumulative_reward_std[episode]
+                        for episode in range(args.episodes + 1)
+                    ],
+                    [
+                        cumulative_reward_mean[episode] + cumulative_reward_std[episode]
+                        for episode in range(args.episodes + 1)
+                    ],
+                    alpha=0.2,
+                    color="orange",
+                )
 
     # Print Hyperparameters
     logging.info(f"Hyperparameters: {args}")
 
     if args.save_models or args.save_metrics:
-        logging.info(f"Outputs saved to path '{args.output}' are formatted as 'qtable_{i}_{j}_{k}.pkl' and 'metrics_{i}_{j}_{k}.pkl' where i is the index of the nstep, j is the index of the epsilon and k is the repetition.")
+        logging.info(
+            f"Outputs saved to path '{args.output}' are formatted as 'qtable_{i}_{j}_{k}.pkl' and 'metrics_{i}_{j}_{k}.pkl' where i is the index of the nstep, j is the index of the epsilon and k is the repetition."
+        )
 
     if args.plot:
         figure = plt.gcf()  # get current figure
-        figure.set_size_inches(25, 12) # set figure's size manually to your full screen (32x18)
+        figure.set_size_inches(
+            25, 12
+        )  # set figure's size manually to your full screen (32x18)
         plt.show()
